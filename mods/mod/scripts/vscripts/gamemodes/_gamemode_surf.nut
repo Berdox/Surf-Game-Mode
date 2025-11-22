@@ -7,7 +7,7 @@ global function SURF_OnPlayerConnected
 global function SURF_DestroyCallback
 
 void function _SURF_Init() {
-    print("**********************SURF INITS*******************************")
+    //print("**********************SURF INITS *******************************")
 	ClassicMP_SetCustomIntro( ClassicMP_DefaultNoIntro_Setup, 10 )
 	ClassicMP_ForceDisableEpilogue( true )
 	SetLoadoutGracePeriodEnabled( false )
@@ -19,11 +19,12 @@ void function _SURF_Init() {
 	Riff_ForceBoostAvailability( eBoostAvailability.Disabled )
 
 	// Turn Off wallruning
-	ServerCommand("wallrun_enable 0");
+    //SetConVarInt( "wallrun_enable", 0)
 
     // Add callbacks
 	AddCallback_OnClientConnected( SURF_OnPlayerConnected )
 	AddCallback_OnPlayerRespawned( SURF_OnPlayerRespawned)
+    AddCallback_OnPlayerGetsNewPilotLoadout( DisableWallRun ) 
     //AddCallback_OnClientDisconnected(SURF_OnPlayerDisconnected)
 }
 
@@ -47,14 +48,18 @@ void function SURF_OnPlayerRespawned(entity player) {
 
 // void function SURF_OnPlayerDisconnected( entity player )
 // {
-// //     print("Disconnect CALLBACK*******************************")
-// //    ServerCommand("wallrun_enable 1");
 // }
 
 int function SurfDecideWinner()
 {
-    ServerCommand("wallrun_enable 1");
+    //SetConVarInt( "wallrun_enable", 1)
 	return TEAM_IMC //TEAM_MILITIA
+}
+
+void function DisableWallRun( entity player, PilotLoadoutDef loadout )
+{
+    loadout.setFileMods.append( "disable_wallrun" )
+    player.SetPlayerSettingsWithMods( loadout.setFile, loadout.setFileMods )
 }
 
 void function disarm_player(entity player) {
@@ -86,7 +91,4 @@ void function disarm_player(entity player) {
     //print( "Player " + player.GetPlayerName() + " has been completely stripped of weapons, abilities, and grenades." )
 }
 
-void function SURF_DestroyCallback() {
-    //ServerCommand("wallrun_enable 1"); // doesn't work
-}
 #endif
